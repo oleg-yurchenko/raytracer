@@ -22,8 +22,21 @@ static constexpr const double DEFAULT_ASPECT_RATIO    {(double)WIDTH/HEIGHT};
 static constexpr const double DEFAULT_VIEWPORT_HEIGHT {2.0F};
 static constexpr const double DEFAULT_VIEWPORT_WIDTH  {DEFAULT_VIEWPORT_HEIGHT * DEFAULT_ASPECT_RATIO};
 
+bool testSphere(const Point& center, double radius, const Ray3& r)
+{
+  Dir oc = center - r.origin();
+  double a = r.direction() * r.direction();
+  double b = r.direction() * oc * (-2.0F);
+  double c = oc * oc - radius*radius;
+  double disc = b*b - 4*a*c;
+  return disc >= 0;
+}
+
 Color rayColor(const Ray3& r)
 {
+  if (testSphere({0,0,-2.0F}, 0.5F, r))
+    return {1.0F, 0.0F, 0.0F};
+
   Dir unitDir {r.direction().normalized()};
   double l = 0.5F*(unitDir.y + 1.0F);
   return Color(1.0F, 1.0F, 1.0F)*(1.0F-l) + Color(0.5F, 0.7F, 1.0F)*l;
