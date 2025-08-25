@@ -4,11 +4,12 @@ run: all
 
 all: objs
 	echo "linking..."
-	clang++ -o out/raytracer out/*.o
+	clang++ -std=c++20 -o out/raytracer out/*.o
 
-objs: src/main.cpp
+objs: src/main.cpp src/camera.cpp
 	echo "compiling..."
-	clang++ -Iinclude/ -c -o out/main.o src/main.cpp
+	clang++ -std=c++20 -Iinclude/ -c -o out/camera.o src/camera.cpp
+	clang++ -std=c++20 -Iinclude/ -c -o out/main.o src/main.cpp
 
 .PHONY: clean
 

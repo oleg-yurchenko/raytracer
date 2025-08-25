@@ -4,6 +4,25 @@
 #include <iostream>
 #include <cstring>
 
+#define SHARED_VECTOR_FUNCS(T, N) \
+  Vector<T, N>  operator-() const; \
+  Vector<T, N>  operator-(const Vector<T, N>& other) const; \
+  Vector<T, N>& operator-=(const Vector<T, N>& other); \
+  Vector<T, N>& neg(); \
+  Vector<T, N>  operator+(const Vector<T, N>& other) const; \
+  Vector<T, N>& operator+=(const Vector<T, N>& other); \
+  Vector<T, N>  operator+(const T& val) const; \
+  Vector<T, N>& operator+=(const T& val); \
+  Vector<T, N>  operator*(const T& val) const; \
+  Vector<T, N>& operator*=(const T& val); \
+  T dot(const Vector<T, N>& other) const; \
+  T operator*(const Vector<T, N>& other) const; \
+  Vector<T, N>  cross(const Vector<T, N>& other) const; \
+  Vector<T, N>  operator^(const Vector<T, N>& other) const; \
+  Vector<T, N>& operator^=(const Vector<T, N>& other);\
+  std::string   string() const;
+
+
 template<typename T, size_t N>
 class Vector
 {
@@ -11,29 +30,9 @@ public:
   Vector();
   ~Vector();
 
-  Vector<T, N>  operator-() const;
-  Vector<T, N>& neg();
-
-  Vector<T, N>  operator+(const Vector<T, N>& other) const;
-  Vector<T, N>& operator+=(const Vector<T, N>& other);
-
-  Vector<T, N>  operator+(const T& val) const; // element-wise addition
-  Vector<T, N>& operator+=(const T& val);
-
-  Vector<T, N>  operator*(const T& val) const; // element-wise multiplication
-  Vector<T, N>& operator*=(const T& val);
-
-  T dot(const Vector<T, N>& other) const;
-  T operator*(const Vector<T, N>& other) const; // same as dot()
-  
-  Vector<T, N>  cross(const Vector<T, N>& other) const;
-  Vector<T, N>  operator^(const Vector<T, N>& other) const; // same as cross()
-  Vector<T, N>& operator^=(const Vector<T, N>& other);
+  SHARED_VECTOR_FUNCS(T,N)
 
 };
-
-typedef Vector<double, 3> Point;
-typedef Vector<double, 3> Color;
 
 template<>
 class Vector<double, 3>
@@ -44,11 +43,13 @@ public:
     , y(b)
     , z(c)
   {}
-  Vector(Vector<double, 3>& other)
+  Vector(const Vector<double, 3>& other)
   {
     memcpy(vals.data(), other.vals.data(), sizeof(double) * 3);
   }
   ~Vector() = default;
+
+  SHARED_VECTOR_FUNCS(double, 3)
 
   double length() const;
   double lengthSquared() const;
@@ -70,3 +71,33 @@ public:
     };
   };
 };
+
+template<>
+class Vector<double, 2>
+{
+public:
+  Vector(double a, double b)
+    : x(a)
+    , y(b)
+  {}
+  Vector()
+    : Vector(0.0F, 0.0F)
+  {}
+
+  ~Vector() = default;
+
+  union
+  {
+    std::array<double, 2> vals;
+    struct {
+      double x;
+      double y;
+    };
+    struct {
+      double w;
+      double h;
+    };
+  };
+};
+
+#include <vec.inl>
