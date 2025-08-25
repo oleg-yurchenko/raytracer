@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <ctime>
+#include <point.h>
+#include <color.h>
 
 #define WIDTH 1280
 #define HEIGHT 720
@@ -27,12 +29,8 @@ int main()
     clog << "\rScanlines remaining: " << (HEIGHT - i) << ' ' << flush;
     for (size_t j = 0; j < WIDTH; ++j)
     {
-      // r
-      image << int(255.0f * ((float)i/HEIGHT)) << " ";
-      // g
-      image << int(255.0f * ((float)j/WIDTH)) << " ";
-      // b
-      image << 0 << " ";
+      Color c {(double)i/HEIGHT, (double)j/WIDTH, 0.0F};
+      image << c;
     }
   }
 

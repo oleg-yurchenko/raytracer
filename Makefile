@@ -8,7 +8,7 @@ all: objs
 
 objs: src/main.cpp
 	echo "compiling..."
-	clang++ -c -o out/main.o src/main.cpp
+	clang++ -Iinclude/ -c -o out/main.o src/main.cpp
 
 .PHONY: clean
 
