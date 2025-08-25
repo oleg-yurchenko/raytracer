@@ -53,8 +53,8 @@ public:
 
   double length() const;
   double lengthSquared() const;
-  void normalize(); // normalizes self
-  Vector<double, 3> normalized() const; // returns normalized copy
+  Vector<double, 3>&  normalize(); // normalizes self
+  Vector<double, 3>   normalized() const; // returns normalized copy
 
   union
   {

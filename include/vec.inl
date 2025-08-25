@@ -105,15 +105,16 @@ inline double VEC_DBL_3::lengthSquared() const
   return x*x + y*y + z*z;
 }
 
-inline void VEC_DBL_3::normalize()
+inline VEC_DBL_3& VEC_DBL_3::normalize()
 {
   const double l = length();
   if (l == 0.0F)
-    return;
+    return *this;
 
   x /= l;
   y /= l;
   z /= l;
+  return *this;
 }
 
 inline VEC_DBL_3 VEC_DBL_3::normalized() const

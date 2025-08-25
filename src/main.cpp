@@ -1,3 +1,4 @@
+#include <util.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -6,6 +7,8 @@
 #include <color.h>
 #include <camera.h>
 #include <ray.h>
+#include <hittable_list.h>
+#include <sphere.h>
 
 #define WIDTH 1280
 #define HEIGHT 720
@@ -22,21 +25,14 @@ static constexpr const double DEFAULT_ASPECT_RATIO    {(double)WIDTH/HEIGHT};
 static constexpr const double DEFAULT_VIEWPORT_HEIGHT {2.0F};
 static constexpr const double DEFAULT_VIEWPORT_WIDTH  {DEFAULT_VIEWPORT_HEIGHT * DEFAULT_ASPECT_RATIO};
 
-bool testSphere(const Point& center, double radius, const Ray3& r)
+Color rayColor(const Ray3& r, const Hittable& world)
 {
-  Dir oc = center - r.origin();
-  double a = r.direction() * r.direction();
-  double b = r.direction() * oc * (-2.0F);
-  double c = oc * oc - radius*radius;
-  double disc = b*b - 4*a*c;
-  return disc >= 0;
-}
+  // hitbox
+  HitRecord hr;
+  if (world.hit(r, IntervalD(0, infty), hr))
+    return (hr.normal + Color(1.0F, 1.0F, 1.0F)) * 0.5F;
 
-Color rayColor(const Ray3& r)
-{
-  if (testSphere({0,0,-2.0F}, 0.5F, r))
-    return {1.0F, 0.0F, 0.0F};
-
+  // skybox
   Dir unitDir {r.direction().normalized()};
   double l = 0.5F*(unitDir.y + 1.0F);
   return Color(1.0F, 1.0F, 1.0F)*(1.0F-l) + Color(0.5F, 0.7F, 1.0F)*l;
@@ -53,6 +49,12 @@ int main()
   // Second arg, dimensions of image
   // Third arg, max color value per pixel
   image << "P3 " << WIDTH << " " << HEIGHT << " 255 ";
+
+
+  // Create the world
+  HittableList world;
+  world.add(std::make_shared<Sphere>(Point(0.0F,0.0F,-1.0F), 0.5F));
+  world.add(std::make_shared<Sphere>(Point(0.0F,-100.5F,-1.0F), 100.0F));
 
   // create our main camera
   weak_ptr<Camera> mainCamera = MainCameraFactory::makeMainCamera({WIDTH, HEIGHT}, DEFAULT_ASPECT_RATIO, DEFAULT_VIEWPORT_HEIGHT);
@@ -79,7 +81,7 @@ int main()
     {
       //cout << "pixel (" << i << "," << j << ") -- " << mainCamera.lock()->getPixelPosition(i, j).string() << endl;
       Ray3 r{mainCamera.lock()->eyePoint, mainCamera.lock()->getPixelDirection(j, i)};
-      Color c {rayColor(r)};
+      Color c {rayColor(r, world)};
       image << c;
     }
   }
