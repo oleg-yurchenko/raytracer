@@ -1,18 +1,20 @@
 #include <camera.h>
 
+using namespace std;
+
 MainCameraFactory MainCameraFactory::factory{};
 
 CameraFactory::~CameraFactory() {}
 
-std::weak_ptr<Camera> MainCameraFactory::makeMainCamera(Vector<double, 2> imageResolution, double aspectRatio, double viewportScale)
+weak_ptr<Camera> MainCameraFactory::makeMainCamera(Vector<double, 2> imageResolution, double aspectRatio, double viewportScale)
 {
   if (factory.mainCamera)
     return factory.mainCamera;
 
-  factory.mainCamera = std::make_shared<Camera>();
+  factory.mainCamera = make_shared<Camera>();
 
   // for now, we set the main camera's properties as set in the book
-  std::shared_ptr<Camera> mc = factory.mainCamera;
+  shared_ptr<Camera> mc = factory.mainCamera;
 
   mc->eyePoint = {0.0F,0.0F,0.0F};
   mc->look = {0.0F, 0.0F, -1.0F};
@@ -22,6 +24,7 @@ std::weak_ptr<Camera> MainCameraFactory::makeMainCamera(Vector<double, 2> imageR
   mc->viewport.v_v = {0.0F, -mc->viewport.height, 0.0F};
   mc->viewport.px_du = mc->viewport.v_u * (1.0F / imageResolution.w);
   mc->viewport.px_dv = mc->viewport.v_v * (1.0F / imageResolution.h);
+  mc->viewport.resolution = imageResolution;
 
   return mc;
 }
@@ -31,7 +34,7 @@ void MainCameraFactory::destroyMainCamera()
   factory.mainCamera = nullptr;
 }
 
-std::weak_ptr<Camera> MainCameraFactory::getMainCamera()
+weak_ptr<Camera> MainCameraFactory::getMainCamera()
 {
   return factory.mainCamera;
 }
@@ -39,4 +42,39 @@ std::weak_ptr<Camera> MainCameraFactory::getMainCamera()
 MainCameraFactory::~MainCameraFactory()
 {
   destroyMainCamera();
+}
+
+Color3 *Camera::render(const Hittable& world, Color3* buf) const
+{
+  if (buf == nullptr)
+    buf = new Color3[viewport.resolution.w * viewport.resolution.h];
+
+  for (size_t row = 0; row < (size_t)viewport.resolution.h; ++row)
+  {
+    clog << "\rScanlines remaining: " << (viewport.resolution.h - row) << ' ' << flush;
+    for (size_t col = 0; col < (size_t)viewport.resolution.w; ++col)
+    {
+      Ray3 r{eyePoint, getPixelDirection(col, row)};
+      buf[col + row*((size_t)viewport.resolution.w)] = rayColor(r, world);
+    }
+  }
+
+  return buf;
+}
+
+void Camera::printDebugInfo() const
+{
+  cout << "camera created with:" << endl;
+  cout << "eyepoint: " << eyePoint.string() << endl;
+  cout << "look: " << look.string() << endl;
+  cout << "viewport width: " << viewport.width << endl;
+  cout << "viewport height: " << viewport.height << endl;
+  cout << "viewport u: " << viewport.v_u.string() << endl;
+  cout << "viewport v: " << viewport.v_v.string() << endl;
+  cout << "viewport du: " << viewport.px_du.string() << endl;
+  cout << "viewport dv: " << viewport.px_dv.string() << endl;
+  cout << "viewport resolution: " << viewport.resolution.string() << endl;
+  cout << "upper left: " << getPixelPosition(0,0).string() << endl;
+  cout << "upper left dir: " << getPixelDirection(0,0).string() << endl;
+
 }

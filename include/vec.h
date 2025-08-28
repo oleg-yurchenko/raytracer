@@ -86,6 +86,8 @@ public:
 
   ~Vector() = default;
 
+  SHARED_VECTOR_FUNCS(double, 2);
+
   union
   {
     std::array<double, 2> vals;

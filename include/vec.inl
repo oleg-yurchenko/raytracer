@@ -1,4 +1,5 @@
 #define VEC_DBL_3 Vector<double, 3>
+#define VEC_DBL_2 Vector<double, 2>
 
 inline VEC_DBL_3 VEC_DBL_3::operator-() const
 {
@@ -129,4 +130,10 @@ inline VEC_DBL_3 VEC_DBL_3::normalized() const
 inline std::string VEC_DBL_3::string() const
 {
   return std::string("(" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z) + ")");
+}
+
+inline std::string VEC_DBL_2::string() const
+{
+
+  return std::string("(" + std::to_string(x) + "," + std::to_string(y) + ")");
 }
