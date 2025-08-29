@@ -63,6 +63,7 @@ public:
   static Vector<double, 3> randUnit();
   static Vector<double, 3> randOnHemisphere(const Vector<double, 3>& n);
   static Vector<double, 3> reflect(const Vector<double, 3>& v, const Vector<double, 3>& n);
+  static Vector<double, 3> refract(const Vector<double, 3>& v, const Vector<double, 3>& n, double etaFrac);
 
   union
   {

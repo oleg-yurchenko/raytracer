@@ -173,6 +173,14 @@ inline VEC_DBL_3 VEC_DBL_3::reflect(const VEC_DBL_3 &v, const VEC_DBL_3 &n)
   return v - n*(v*n)*2;
 }
 
+inline VEC_DBL_3 VEC_DBL_3::refract(const Vector<double, 3>& v, const Vector<double, 3>& n, double etaFrac)
+{
+  double cosTheta = std::fmin((-v)*n, 1.0F);
+  VEC_DBL_3 outPerp = (v + n*cosTheta) * etaFrac;
+  VEC_DBL_3 outPara = n * (-std::sqrt(std::fabs(1.0F - outPerp.lengthSquared())));
+  return outPerp += outPara;
+}
+
 inline std::string VEC_DBL_2::string() const
 {
 
