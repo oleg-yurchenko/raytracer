@@ -1,5 +1,11 @@
 #include <sphere.h>
 
+Sphere::Sphere(const Point3& center, double radius, std::shared_ptr<Material> mat)
+  : center(center)
+  , radius(radius)
+  , mat(mat)
+{}
+
 bool Sphere::hit(const Ray3& r, IntervalD t, HitRecord& hr) const
 {
   Direction3 oc = center - r.origin();
@@ -26,6 +32,7 @@ bool Sphere::hit(const Ray3& r, IntervalD t, HitRecord& hr) const
   hr.p = r.at(hr.t);
   Direction3 normal = (hr.p - center) * (1.0F/radius);
   hr.setFaceNormal(r, normal);
+  hr.mat = mat;
 
   return true;
 }

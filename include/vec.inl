@@ -142,6 +142,12 @@ inline VEC_DBL_3 VEC_DBL_3::random(double min, double max)
   return VEC_DBL_3(randDouble(min,max), randDouble(min,max), randDouble(min,max));
 }
 
+inline bool VEC_DBL_3::isNearZero() const
+{
+  static const double eps = 1e-8;
+  return (std::fabs(x) < eps) && (std::fabs(y) < eps) && (std::fabs(z) < eps);  
+}
+
 inline VEC_DBL_3 VEC_DBL_3::randUnit()
 {
   while (true)
@@ -160,6 +166,11 @@ inline VEC_DBL_3 VEC_DBL_3::randOnHemisphere(const VEC_DBL_3 &n)
     return onUnit;
 
   return -onUnit;
+}
+
+inline VEC_DBL_3 VEC_DBL_3::reflect(const VEC_DBL_3 &v, const VEC_DBL_3 &n)
+{
+  return v - n*(v*n)*2;
 }
 
 inline std::string VEC_DBL_2::string() const

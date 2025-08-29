@@ -9,9 +9,12 @@
 #include <ray.h>
 #include <hittable_list.h>
 #include <sphere.h>
+#include "material.h"
 
 #define WIDTH 1280
 #define HEIGHT 720
+//#define WIDTH 2560
+//#define HEIGHT 1440
 
 #define OUT_PATH "/Users/olegyurchenko/dev/raytracing/img/"
 
@@ -37,12 +40,18 @@ int main()
   // Third arg, max color value per pixel
   image << "P3 " << WIDTH << " " << HEIGHT << " 255 ";
 
+  // set up materials
+  std::shared_ptr<Material> groundMat = std::make_shared<Lambertian>(Color3(0.8F, 0.8F, 0.0F));
+  std::shared_ptr<Material> centerMat = std::make_shared<Lambertian>(Color3(0.1F, 0.2F, 0.5F));
+  std::shared_ptr<Material> leftMat   = std::make_shared<Metal>(Color3(0.8F, 0.8F, 0.8F), 0.3F);
+  std::shared_ptr<Material> rightMat  = std::make_shared<Metal>(Color3(0.8F, 0.6F, 0.2F), 1.0F);
 
   // Create the world
   HittableList world;
-  world.add(std::make_shared<Sphere>(Point(0.0F,0.0F,-1.0F), 0.5F));
-  world.add(std::make_shared<Sphere>(Point(0.0F,-100.5F,-1.0F), 100.0F));
-  world.add(std::make_shared<Sphere>(Point(1.0F, 2.0F, -2.0F), 2.0F));
+  world.add(std::make_shared<Sphere>(Point(0.0F,-100.5F,-1.0F), 100.0F, groundMat));
+  world.add(std::make_shared<Sphere>(Point(0.0F,0.0F,-1.2F), 0.5F, centerMat));
+  world.add(std::make_shared<Sphere>(Point(-1.0F,0.0F,-1.0F), 0.5F, leftMat));
+  world.add(std::make_shared<Sphere>(Point(1.0F,0.0F,-1.0F), 0.5F, rightMat));
 
   // create our main camera
   weak_ptr<Camera> mainCamera = MainCameraFactory::makeMainCamera({WIDTH, HEIGHT}, DEFAULT_ASPECT_RATIO, DEFAULT_VIEWPORT_HEIGHT);

@@ -58,9 +58,11 @@ public:
   double lengthSquared() const;
   Vector<double, 3>&  normalize(); // normalizes self
   Vector<double, 3>   normalized() const; // returns normalized copy
+  bool                isNearZero() const;
 
   static Vector<double, 3> randUnit();
   static Vector<double, 3> randOnHemisphere(const Vector<double, 3>& n);
+  static Vector<double, 3> reflect(const Vector<double, 3>& v, const Vector<double, 3>& n);
 
   union
   {

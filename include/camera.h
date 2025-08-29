@@ -4,6 +4,7 @@
 #include "color.h"
 #include <memory>
 #include <iostream>
+#include "material.h"
 
 // viewport
 struct Viewport
@@ -73,11 +74,18 @@ private:
     HitRecord hr;
     if (world.hit(r, IntervalD(0.001F, infty), hr))
     {
-      //Direction3 dir = Direction3::randOnHemisphere(hr.normal);
-      //lambertian dist. instead
-      Direction3 dir = hr.normal + Direction3::randUnit();
-      return rayColor({hr.p, dir}, depth - 1, world) * 0.5F;
-      //return (hr.normal + Color3(1.0F, 1.0F, 1.0F)) * 0.5F;
+      Ray3 scattered;
+      Color3 attenuation;
+      if (hr.mat->scatter(r, hr, attenuation, scattered))
+      {
+        //return attenuation * rayColor(scattered, depth-1, world);
+        Color3 outCol = rayColor(scattered, depth - 1, world);
+        outCol.r *= attenuation.r;
+        outCol.g *= attenuation.g;
+        outCol.b *= attenuation.b;
+        return outCol;
+      }
+      return Color3();
     }
 
     // skybox
