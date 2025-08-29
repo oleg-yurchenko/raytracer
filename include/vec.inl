@@ -132,6 +132,36 @@ inline std::string VEC_DBL_3::string() const
   return std::string("(" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z) + ")");
 }
 
+inline VEC_DBL_3 VEC_DBL_3::random()
+{
+  return VEC_DBL_3(randDouble(), randDouble(), randDouble());
+}
+
+inline VEC_DBL_3 VEC_DBL_3::random(double min, double max)
+{
+  return VEC_DBL_3(randDouble(min,max), randDouble(min,max), randDouble(min,max));
+}
+
+inline VEC_DBL_3 VEC_DBL_3::randUnit()
+{
+  while (true)
+  {
+    VEC_DBL_3 pt = random();
+    double lensq = pt.lengthSquared();
+    if (1e-160 < lensq && lensq <= 1.0F)
+      return pt.normalize();
+  }
+}
+
+inline VEC_DBL_3 VEC_DBL_3::randOnHemisphere(const VEC_DBL_3 &n)
+{
+  VEC_DBL_3 onUnit = randUnit();
+  if (onUnit * n > 0.0F)
+    return onUnit;
+
+  return -onUnit;
+}
+
 inline std::string VEC_DBL_2::string() const
 {
 

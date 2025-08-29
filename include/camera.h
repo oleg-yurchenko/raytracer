@@ -44,6 +44,7 @@ public:
   Point3     eyePoint;
   Direction3 look; // focalLength is the length of this vector!!
   Viewport   viewport;
+  size_t     maxBounce;
   
   // multisampling settings
   size_t            samplesPerPixel;
@@ -63,12 +64,21 @@ private:
   {
     return getPixelPosition(x, y) - eyePoint;
   }
-  inline Color3 rayColor(const Ray3& r, const Hittable& world) const
+  inline Color3 rayColor(const Ray3& r, size_t depth, const Hittable& world) const
   {
+    if (depth == 0)
+      return {};
+
     // hitbox
     HitRecord hr;
-    if (world.hit(r, IntervalD(0, infty), hr))
-      return (hr.normal + Color3(1.0F, 1.0F, 1.0F)) * 0.5F;
+    if (world.hit(r, IntervalD(0.001F, infty), hr))
+    {
+      //Direction3 dir = Direction3::randOnHemisphere(hr.normal);
+      //lambertian dist. instead
+      Direction3 dir = hr.normal + Direction3::randUnit();
+      return rayColor({hr.p, dir}, depth - 1, world) * 0.5F;
+      //return (hr.normal + Color3(1.0F, 1.0F, 1.0F)) * 0.5F;
+    }
 
     // skybox
     Direction3 unitDir {r.direction().normalized()};

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstring>
+#include "util.h"
 
 #define SHARED_VECTOR_FUNCS(T, N) \
   Vector<T, N>  operator-() const; \
@@ -20,7 +21,9 @@
   Vector<T, N>  cross(const Vector<T, N>& other) const; \
   Vector<T, N>  operator^(const Vector<T, N>& other) const; \
   Vector<T, N>& operator^=(const Vector<T, N>& other);\
-  std::string   string() const;
+  std::string   string() const; \
+  static Vector<T, N> random(); \
+  static Vector<T, N> random(T min, T max);
 
 
 template<typename T, size_t N>
@@ -55,6 +58,9 @@ public:
   double lengthSquared() const;
   Vector<double, 3>&  normalize(); // normalizes self
   Vector<double, 3>   normalized() const; // returns normalized copy
+
+  static Vector<double, 3> randUnit();
+  static Vector<double, 3> randOnHemisphere(const Vector<double, 3>& n);
 
   union
   {
