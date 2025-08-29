@@ -40,9 +40,15 @@ public:
   Color3 *render(const Hittable& world, Color3* buf = nullptr) const;
   void printDebugInfo() const;
 
+  // default camera settings
   Point3     eyePoint;
   Direction3 look; // focalLength is the length of this vector!!
   Viewport   viewport;
+  
+  // multisampling settings
+  size_t            samplesPerPixel;
+  double            pixelSampleScale;
+  Vector<double, 2> (*sampleRegion)(void);
 
 private:
   inline Point3 getViewportUpperLeft() const
@@ -68,6 +74,21 @@ private:
     Direction3 unitDir {r.direction().normalized()};
     double l = 0.5F*(unitDir.y + 1.0F);
     return Color3(1.0F, 1.0F, 1.0F)*(1.0F-l) + Color3(0.5F, 0.7F, 1.0F)*l;
+  }
+
+  static const Interval<double> intensity;
+
+  // multisampling-specific functions
+  inline Point3 getSamplePixelPosition(size_t x, size_t y) const
+  {
+    Vector<double, 2> offset {sampleRegion()};
+    return getViewportUpperLeft()
+      + (viewport.px_du * (x + offset.x))
+      + (viewport.px_dv * (y + offset.y));
+  }
+  inline Direction3 getSamplePixelDirection(size_t x, size_t y) const
+  {
+    return getSamplePixelPosition(x, y) - eyePoint;
   }
 };
 

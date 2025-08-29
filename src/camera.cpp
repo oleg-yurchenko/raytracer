@@ -3,6 +3,7 @@
 using namespace std;
 
 MainCameraFactory MainCameraFactory::factory{};
+const Interval<double> Camera::intensity{0.0F, 1.0F};
 
 CameraFactory::~CameraFactory() {}
 
@@ -25,6 +26,11 @@ weak_ptr<Camera> MainCameraFactory::makeMainCamera(Vector<double, 2> imageResolu
   mc->viewport.px_du = mc->viewport.v_u * (1.0F / imageResolution.w);
   mc->viewport.px_dv = mc->viewport.v_v * (1.0F / imageResolution.h);
   mc->viewport.resolution = imageResolution;
+
+  // multisampling
+  mc->samplesPerPixel = 100;
+  mc->pixelSampleScale = 1.0F / (double)mc->samplesPerPixel;
+  mc->sampleRegion = []() { return Vector<double, 2>(randDouble() - 0.5F, randDouble() - 0.5F); };
 
   return mc;
 }
@@ -54,8 +60,18 @@ Color3 *Camera::render(const Hittable& world, Color3* buf) const
     clog << "\rScanlines remaining: " << (viewport.resolution.h - row) << ' ' << flush;
     for (size_t col = 0; col < (size_t)viewport.resolution.w; ++col)
     {
-      Ray3 r{eyePoint, getPixelDirection(col, row)};
-      buf[col + row*((size_t)viewport.resolution.w)] = rayColor(r, world);
+      // cast multiple sampled pixels
+      Color3 multiSampled;
+      for (size_t sample = 0; sample < samplesPerPixel; ++sample)
+      {
+        //Ray3 r{eyePoint, getPixelDirection(col, row)};
+        Ray3 r {eyePoint, getSamplePixelDirection(col, row)};
+        multiSampled += rayColor(r, world);
+      }
+
+      multiSampled *= pixelSampleScale;
+
+      buf[col + row*((size_t)viewport.resolution.w)] = Color3(intensity.clamp(multiSampled.r), intensity.clamp(multiSampled.g), intensity.clamp(multiSampled.b));
     }
   }
 

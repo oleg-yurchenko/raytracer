@@ -42,6 +42,7 @@ int main()
   HittableList world;
   world.add(std::make_shared<Sphere>(Point(0.0F,0.0F,-1.0F), 0.5F));
   world.add(std::make_shared<Sphere>(Point(0.0F,-100.5F,-1.0F), 100.0F));
+  world.add(std::make_shared<Sphere>(Point(1.0F, 2.0F, -2.0F), 2.0F));
 
   // create our main camera
   weak_ptr<Camera> mainCamera = MainCameraFactory::makeMainCamera({WIDTH, HEIGHT}, DEFAULT_ASPECT_RATIO, DEFAULT_VIEWPORT_HEIGHT);
