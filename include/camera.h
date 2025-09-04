@@ -32,6 +32,28 @@ public:
   Camera() = default;
   ~Camera() = default;
 
+  void move(const Point3& newPos, const Point3& lookAt, double focalLength = 0.0F)
+  {
+    eyePoint = newPos;
+    
+    if (focalLength == 0.0F)
+      look = (newPos - lookAt);
+    else
+      look = (newPos - lookAt).normalize() * focalLength;
+
+    w = look.normalized();
+    u = (Direction3::up() ^ w).normalize();
+    v = w ^ u;
+
+    const double h {std::tan(degsToRads(vfov) / 2.0F)};
+    viewport.height = 2 * h * look.length();
+    viewport.width = viewport.height * (viewport.resolution.w/viewport.resolution.h);
+    viewport.v_u = u * viewport.width;
+    viewport.v_v = (-v) * viewport.height;
+    viewport.px_du = viewport.v_u * (1.0F / viewport.resolution.w);
+    viewport.px_dv = viewport.v_v * (1.0F / viewport.resolution.h);
+  }
+
   // Returns a buffer of Color3, whose size is equal to the information given in 
   // the viewport's resolution
   // This function will allocate a new buffer if null is passed
@@ -46,16 +68,24 @@ public:
   Direction3 look; // focalLength is the length of this vector!!
   Viewport   viewport;
   size_t     maxBounce;
+  double     vfov;
+  Direction3 u,v,w; // camera orthonormal basis
   
   // multisampling settings
   size_t            samplesPerPixel;
   double            pixelSampleScale;
   Vector<double, 2> (*sampleRegion)(void);
 
+  // defocus blur
+  double defocusAngle;
+  double focusDist;
+  double defocusDiskU;
+  double defocusDiskV;
+
 private:
   inline Point3 getViewportUpperLeft() const
   {
-    return eyePoint + look - (viewport.v_u + viewport.v_v)*0.5F + (viewport.px_du+viewport.px_dv)*0.5F;
+    return eyePoint - (w*look.length()) - viewport.v_u * 0.5F - viewport.v_v * 0.5F;
   }
   inline Point3     getPixelPosition(size_t x, size_t y) const
   {
@@ -113,9 +143,9 @@ private:
 class MainCameraFactory : public CameraFactory
 {
 public:
-  static std::weak_ptr<Camera> makeMainCamera(Vector<double, 2> imageResolution, double aspectRatio, double viewportScale = 2.0F);
+  static std::shared_ptr<Camera> makeMainCamera(Vector<double, 2> imageResolution, double aspectRatio);
   static void destroyMainCamera();
-  static std::weak_ptr<Camera> getMainCamera();
+  static std::shared_ptr<Camera> getMainCamera();
 
   static MainCameraFactory factory;
 

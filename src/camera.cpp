@@ -7,7 +7,7 @@ const Interval<double> Camera::intensity{0.0F, 1.0F};
 
 CameraFactory::~CameraFactory() {}
 
-weak_ptr<Camera> MainCameraFactory::makeMainCamera(Vector<double, 2> imageResolution, double aspectRatio, double viewportScale)
+shared_ptr<Camera> MainCameraFactory::makeMainCamera(Vector<double, 2> imageResolution, double aspectRatio)
 {
   if (factory.mainCamera)
     return factory.mainCamera;
@@ -17,16 +17,12 @@ weak_ptr<Camera> MainCameraFactory::makeMainCamera(Vector<double, 2> imageResolu
   // for now, we set the main camera's properties as set in the book
   shared_ptr<Camera> mc = factory.mainCamera;
 
-  mc->eyePoint = {0.0F,0.0F,0.0F};
-  mc->look = {0.0F, 0.0F, -1.0F};
-  mc->viewport.width =  viewportScale*aspectRatio;
-  mc->viewport.height = viewportScale;
-  mc->viewport.v_u = {mc->viewport.width, 0.0F, 0.0F};
-  mc->viewport.v_v = {0.0F, -mc->viewport.height, 0.0F};
-  mc->viewport.px_du = mc->viewport.v_u * (1.0F / imageResolution.w);
-  mc->viewport.px_dv = mc->viewport.v_v * (1.0F / imageResolution.h);
+  mc->vfov = 90.0F;
   mc->viewport.resolution = imageResolution;
   mc->maxBounce = 50;
+  // set up camera basis
+  mc->move(Point3(0.0F, 0.0F, 0.0F), Direction3(0.0F, 0.0F, -1.0F));
+
 
   // multisampling
   mc->samplesPerPixel = 100;
@@ -41,7 +37,7 @@ void MainCameraFactory::destroyMainCamera()
   factory.mainCamera = nullptr;
 }
 
-weak_ptr<Camera> MainCameraFactory::getMainCamera()
+shared_ptr<Camera> MainCameraFactory::getMainCamera()
 {
   return factory.mainCamera;
 }

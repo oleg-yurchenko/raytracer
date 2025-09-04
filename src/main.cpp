@@ -25,8 +25,6 @@ typedef Direction3 Dir;
 using namespace std;
 
 static constexpr const double DEFAULT_ASPECT_RATIO    {(double)WIDTH/HEIGHT};
-static constexpr const double DEFAULT_VIEWPORT_HEIGHT {2.0F};
-static constexpr const double DEFAULT_VIEWPORT_WIDTH  {DEFAULT_VIEWPORT_HEIGHT * DEFAULT_ASPECT_RATIO};
 
 int main()
 {
@@ -56,10 +54,13 @@ int main()
   world.add(std::make_shared<Sphere>(Point(1.0F,0.0F,-1.0F), 0.5F, rightMat));
 
   // create our main camera
-  weak_ptr<Camera> mainCamera = MainCameraFactory::makeMainCamera({WIDTH, HEIGHT}, DEFAULT_ASPECT_RATIO, DEFAULT_VIEWPORT_HEIGHT);
+  shared_ptr<Camera> mainCamera = MainCameraFactory::makeMainCamera({WIDTH, HEIGHT}, DEFAULT_ASPECT_RATIO);
+
+  // move the camera
+  mainCamera->move(Point(-2.0F, 2.0F, 1.0F), Point(0.0F, 0.0F, -1.0F));
 
   // render the image given the world using the main camera
-  Color3* rawImage = mainCamera.lock()->render(world, nullptr);
+  Color3* rawImage = mainCamera->render(world, nullptr);
 
   // write back the image to the file
   for (size_t i = 0; i < WIDTH * HEIGHT; ++i)

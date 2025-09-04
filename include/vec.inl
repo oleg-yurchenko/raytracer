@@ -108,6 +108,9 @@ inline double VEC_DBL_3::lengthSquared() const
 
 inline VEC_DBL_3& VEC_DBL_3::normalize()
 {
+  if (lengthSquared() == 1.0F)
+    return *this;
+
   const double l = length();
   if (l == 0.0F)
     return *this;
@@ -120,6 +123,9 @@ inline VEC_DBL_3& VEC_DBL_3::normalize()
 
 inline VEC_DBL_3 VEC_DBL_3::normalized() const
 {
+  if (lengthSquared() == 1.0F)
+    return VEC_DBL_3(x,y,z);
+
   const double l = length();
   if (l == 0.0F)
     return VEC_DBL_3();
@@ -131,6 +137,7 @@ inline std::string VEC_DBL_3::string() const
 {
   return std::string("(" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z) + ")");
 }
+pt.z = 0.0F;
 
 inline VEC_DBL_3 VEC_DBL_3::random()
 {
@@ -168,6 +175,18 @@ inline VEC_DBL_3 VEC_DBL_3::randOnHemisphere(const VEC_DBL_3 &n)
   return -onUnit;
 }
 
+inline VEC_DBL_3 VEC_DBL_3::randInUnitDisk()
+{
+  while (true)
+  {
+    VEC_DBL_3 pt = random(-1.0F, 1.0F);
+    pt.z = 0.0F;
+
+    if (p.lengthSquared() < 1)
+      return p;
+  }
+}
+
 inline VEC_DBL_3 VEC_DBL_3::reflect(const VEC_DBL_3 &v, const VEC_DBL_3 &n)
 {
   return v - n*(v*n)*2;
@@ -179,6 +198,11 @@ inline VEC_DBL_3 VEC_DBL_3::refract(const Vector<double, 3>& v, const Vector<dou
   VEC_DBL_3 outPerp = (v + n*cosTheta) * etaFrac;
   VEC_DBL_3 outPara = n * (-std::sqrt(std::fabs(1.0F - outPerp.lengthSquared())));
   return outPerp += outPara;
+}
+
+inline VEC_DBL_3 VEC_DBL_3::up()
+{
+  return VEC_DBL_3(0.0F, 1.0F, 0.0F);
 }
 
 inline std::string VEC_DBL_2::string() const
