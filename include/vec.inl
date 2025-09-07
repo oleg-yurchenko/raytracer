@@ -137,7 +137,6 @@ inline std::string VEC_DBL_3::string() const
 {
   return std::string("(" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z) + ")");
 }
-pt.z = 0.0F;
 
 inline VEC_DBL_3 VEC_DBL_3::random()
 {
@@ -182,8 +181,8 @@ inline VEC_DBL_3 VEC_DBL_3::randInUnitDisk()
     VEC_DBL_3 pt = random(-1.0F, 1.0F);
     pt.z = 0.0F;
 
-    if (p.lengthSquared() < 1)
-      return p;
+    if (pt.lengthSquared() < 1)
+      return pt;
   }
 }
 

@@ -20,8 +20,12 @@ shared_ptr<Camera> MainCameraFactory::makeMainCamera(Vector<double, 2> imageReso
   mc->vfov = 90.0F;
   mc->viewport.resolution = imageResolution;
   mc->maxBounce = 50;
+
+  // defocus setup
+  mc->viewport.defocusAngle = 10.0F;
+
   // set up camera basis
-  mc->move(Point3(0.0F, 0.0F, 0.0F), Direction3(0.0F, 0.0F, -1.0F));
+  mc->move(Point3(0.0F, 0.0F, 0.0F), Direction3(0.0F, 0.0F, -1.0F), 3.4F);
 
 
   // multisampling
@@ -63,6 +67,7 @@ Color3 *Camera::render(const Hittable& world, Color3* buf) const
       {
         //Ray3 r{eyePoint, getPixelDirection(col, row)};
         Ray3 r {eyePoint, getSamplePixelDirection(col, row)};
+        //Ray3 r = getDefocusRay(col, row);
         multiSampled += rayColor(r, maxBounce, world);
       }
 

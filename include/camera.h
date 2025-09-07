@@ -16,6 +16,12 @@ struct Viewport
   Direction3 px_du;
   Direction3 px_dv;
   Vector<double, 2> resolution;
+
+  // defocus blur
+  double defocusAngle;
+  Direction3 defocusDiskU;
+  Direction3 defocusDiskV;
+
 };
 
 // camera factory
@@ -52,6 +58,11 @@ public:
     viewport.v_v = (-v) * viewport.height;
     viewport.px_du = viewport.v_u * (1.0F / viewport.resolution.w);
     viewport.px_dv = viewport.v_v * (1.0F / viewport.resolution.h);
+
+    // defocus blur
+    double defocusRad = std::tan(degsToRads(viewport.defocusAngle / 2.0F)) * look.length();
+    viewport.defocusDiskU = u * defocusRad;
+    viewport.defocusDiskV = v * defocusRad;
   }
 
   // Returns a buffer of Color3, whose size is equal to the information given in 
@@ -75,12 +86,6 @@ public:
   size_t            samplesPerPixel;
   double            pixelSampleScale;
   Vector<double, 2> (*sampleRegion)(void);
-
-  // defocus blur
-  double defocusAngle;
-  double focusDist;
-  double defocusDiskU;
-  double defocusDiskV;
 
 private:
   inline Point3 getViewportUpperLeft() const
@@ -124,6 +129,15 @@ private:
     return Color3(1.0F, 1.0F, 1.0F)*(1.0F-l) + Color3(0.5F, 0.7F, 1.0F)*l;
   }
 
+  inline Ray3 getRay(int x, int y) const
+  {
+    return Ray3(eyePoint, getPixelDirection(x, y));
+  }
+  inline Ray3 getSampleRay(int x, int y) const
+  {
+    return Ray3(eyePoint, getSamplePixelDirection(x, y));
+  }
+
   static const Interval<double> intensity;
 
   // multisampling-specific functions
@@ -137,6 +151,20 @@ private:
   inline Direction3 getSamplePixelDirection(size_t x, size_t y) const
   {
     return getSamplePixelPosition(x, y) - eyePoint;
+  }
+
+  // defocus blur
+  inline Point3 defocusDiskSample() const
+  {
+    Point3 p = Point3::randInUnitDisk();
+    return eyePoint + (viewport.defocusDiskU * p.x) + (viewport.defocusDiskV * p.y);
+  }
+  inline Ray3 getDefocusRay(int x, int y) const
+  {
+    Point3 pixelSample = getSamplePixelPosition(x, y);
+    Point3 origin = (viewport.defocusAngle <= 0.0F) ? eyePoint : defocusDiskSample();
+
+    return Ray3(origin, pixelSample - origin);
   }
 };
 
