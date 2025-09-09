@@ -17,19 +17,19 @@ shared_ptr<Camera> MainCameraFactory::makeMainCamera(Vector<double, 2> imageReso
   // for now, we set the main camera's properties as set in the book
   shared_ptr<Camera> mc = factory.mainCamera;
 
-  mc->vfov = 90.0F;
+  mc->vfov = 20.0F;
   mc->viewport.resolution = imageResolution;
   mc->maxBounce = 50;
 
   // defocus setup
-  mc->viewport.defocusAngle = 10.0F;
+  mc->viewport.defocusAngle = 0.6F;
 
   // set up camera basis
   mc->move(Point3(0.0F, 0.0F, 0.0F), Direction3(0.0F, 0.0F, -1.0F), 3.4F);
 
 
   // multisampling
-  mc->samplesPerPixel = 100;
+  mc->samplesPerPixel = 50;
   mc->pixelSampleScale = 1.0F / (double)mc->samplesPerPixel;
   mc->sampleRegion = []() { return Vector<double, 2>(randDouble() - 0.5F, randDouble() - 0.5F); };
 
